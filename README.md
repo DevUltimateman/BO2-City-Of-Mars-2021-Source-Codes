@@ -1,4 +1,4 @@
-# nuketown-zombies-reimagined
+# City Of Mars Mod
 City Of Mars | BOII Nuketown Zombies Revamped
 
 Support the work by donating: https://www.paypal.com/donate/?hosted_button_id=WM4SLXZWT99Y4
