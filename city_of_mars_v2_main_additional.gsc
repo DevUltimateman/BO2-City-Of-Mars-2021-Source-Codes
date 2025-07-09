@@ -7,14 +7,13 @@
 
 
 
-
+//TESTING FOR SETLOWREADY FUNC INCLUDES
 #include common_scripts\utility;
 #include maps\_utility;
 #include maps\_anim;
 ///////////////////////////////////////
 #include maps\mp\gametypes\_hud_util;
 #include maps\mp\_utility;
-#include common_scripts\utility;
 #include maps\mp\zombies\_zm_utility;
 #include maps\mp\gametypes_zm\_hud_util;
 #include maps\mp\gametypes_zm\_hud_message;
@@ -114,22 +113,8 @@
 
 
 /*=====================================================================================================================================================================*/
-
 #include maps\mp\zm_nuked_perks;
-
-#include maps\mp\zombies\_zm_game_module;
-#include maps\mp\animscripts\zm_death;
-#include maps\mp\zombies\_zm_perks;
-#include maps\mp\zombies\_zm_weapons;
-#include maps\mp\zombies\_zm_utility;
-#include maps\mp\_utility;
-#include common_scripts\utility;
-
 #include maps\mp\zombies\_zm_ffotd;
-#include maps\mp\zombies\_zm_utility;
-#include common_scripts\utility;
-#include maps\mp\_utility;
-
 #include maps\mp\zm_nuked;
 
 
@@ -139,9 +124,11 @@
 
 main()
 {
+    //level.mannequin_count_new = 0;
     replacefunc( ::nuked_mannequin_init, ::nuked_mannequin_init_COF );
     replacefunc( ::nuked_mannequin_filter, ::nuked_mannequin_filter_COF );
 }
+
 
 nuked_mannequin_init_COF() //checked partially matches cerberus output did not change
 {
@@ -176,18 +163,53 @@ nuked_mannequin_init_COF() //checked partially matches cerberus output did not c
 
     level.fake_clip = [];
     tohit = [];
+    //level.mannequin_count_new = level.mannequins_cof.size;
     for( i = 0; i < level.mannequins_cof.size; i++ )
     {
         wait 0.1;
-        tohit[ i ] = level.mannequins_cof[ i ] gettagorigin( "tag_base_d1_head" );
-        level.fake_clip[ i ] = spawn( "script_model", tohit[ i ] );
+        //changes july 8th 2025
+        //tohit[ i ] = level.mannequins_cof[ i ] gettagorigin( "tag_base_d1_head" );
+        level.fake_clip[ i ] = spawn( "script_model", level.mannequins_cof[ i ] gettagorigin( "tag_base_d1_head" ) );
         level.fake_clip[ i ] setmodel( "tag_origin" ); 
         level.fake_clip[ i ].angles = level.mannequins_cof[ i ].angles;
+        level.fake_clip[ i ] thread wait_for_head_damage_from_mannequin( level.mannequins_cof[ i ] );
         wait 0.05;
-        playfxontag( level._effect[ "fx_theater_mode_camera_head_glow_yllw" ], level.fake_clip[ i ], "tag_origin" );
-        level.fake_clip[ i ] thread wait_for_damage();
+        playfxontag( level._effect[ "fx_theater_mode_camera_head_glow_red" ], level.fake_clip[ i ], "tag_origin" );
+        //level.fake_clip[ i ] thread wait_for_damage();
     }
 
+}
+
+
+//whole new func for step 1 mannequin recon
+wait_for_head_damage_from_mannequin( head )
+{
+    level endon( "end_game" );
+    while( true )
+    {
+        head waittill( "damage", playa );
+        //iprintlnbold( "HEAD GOT DAMAGED" );
+        level notify( "play_cac_sound" );
+        playfx(level._effect["fx_zmb_blackhole_trap_end"],self.origin);
+        playfx( level._effect[ "doubletap_light" ], self.origin + ( 0, 0, -15 ) );
+
+        for( s = 0; s < 4; s++ )
+        {
+            playfx( level._effect[ "fx_zombie_powerup_caution_wave" ], self.origin + ( 0, 0, randomintrange( -75, 0 ) ) );
+            wait 0.25;
+        }
+        playfx( level._effect["fx_elec_transformer_exp_lg_os"], self.origin + ( 0, 0, -30 ) );
+        wait 0.1;
+        self delete();
+        collision = getent( head.target, "targetname" );
+        collision delete();
+        wait 0.05;
+        head delete();
+        level.mannequin_count_new++;
+        value = 28;
+        //iprintlnbold( level.mannequin_count_new + " / " + value );
+        
+    }
 }
 wait_for_damage()
 {   
@@ -270,7 +292,7 @@ check_mannequin_count() // replaces step 1 of ee from the original file
 
     while ( true )
     {
-        if ( level.mannequin_count <= 0 )
+        if ( level.mannequin_count_new >= 28 )
         {
             level notify( "step1_completed" );
             wait 1;
@@ -343,10 +365,10 @@ lockdown_yellowhouse()
             level.zombie_total = 10000;
             starter_trig delete();
             button delete();
-            wait 1;
+            wait 0.05;
 
             PlaySoundAtPosition( "mus_zombie_dog_start", starter_fire );
-            wait 0.1;
+            wait 0.05;
             for( i = 0; i < level.players.size; i++ )
             {
                 if ( level.players[ i ] isTouching( "openhouse2_f1_zone" ) || level.players[ i ] isTouching( "openhouse2_f2_zone" ) )
@@ -363,7 +385,7 @@ lockdown_yellowhouse()
                 col[ i ] = spawn( "script_model", col_locs[ i ] );
                 col[ i ] setmodel( "collision_player_64x64x128" );
                 col[ i ].angles = ( 0, 0, 0 );
-                wait .1;
+                wait .05;
             }
             playsoundatposition( "vox_zmba_sam_event_magicbox_0", starter_fire ); //haha bye bye
             foreach( c in col )
@@ -627,7 +649,7 @@ lockdown_bluehouse()
             PlaySoundAtPosition("zmb_vox_monkey_explode", blue_starter_org );
             trigu delete();
             model delete();
-            wait 1;
+            wait 0.05;
             PlaySoundAtPosition( "mus_zombie_dog_start", blue_starter_org );
             wait 0.1;
             //"openhouse1_f1_zone" //Green House Downstairs
@@ -648,7 +670,7 @@ lockdown_bluehouse()
                 blocker[ i ] = spawn( "script_model", block_locations[ i ] );
                 blocker[ i ] setmodel( "collision_player_64x64x128" );
                 blocker[ i ].angles = ( 0, 0, 0 );
-                wait .1;
+                wait .05;
             }
             wait 0.1;
             playsoundatposition( "vox_zmba_sam_event_magicbox_0", blue_starter_org ); //haha bye bye
@@ -856,7 +878,7 @@ mannequin_trap_think()
         }
         level waittill( "begin_cooldown" );
         level.trigger_switch_manne.in_use = false;
-        trigger_witch.active = false;
+        //trigger_witch.active = false;
         trap_active = false;
         head notify( "spin_manne_fx" ); //stops manne spinner & floater
         if( head.angles != ( -92, -160, 0 ) )
@@ -1470,6 +1492,7 @@ getKilledFromDeathRayOnlyManne2()
     }
 }
 
+/* obsolete, july 8th
 look_at_zombie()
 {
     self endon( "stop_looking_zomb" );
@@ -1490,7 +1513,7 @@ look_at_zombie()
         wait 1;
     }
 }
-
+*/
 should_drop_power_up()
 {
     level endon( "end_game" );
@@ -2310,6 +2333,7 @@ init()
         precachemodel( "collision_player_32x32x128" );
 
         level.zombie_ai_limit = 27; // og 24, make it more difficult
+        level.mannequin_count_new = 0;
     }
 }
 

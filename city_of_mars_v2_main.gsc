@@ -24,7 +24,6 @@
 ///////////////////////////////////////
 #include maps\mp\gametypes\_hud_util;
 #include maps\mp\_utility;
-#include common_scripts\utility;
 #include maps\mp\zombies\_zm_utility;
 #include maps\mp\gametypes_zm\_hud_util;
 #include maps\mp\gametypes_zm\_hud_message;
@@ -124,22 +123,8 @@
 
 
 /*=====================================================================================================================================================================*/
-
 #include maps\mp\zm_nuked_perks;
-
-#include maps\mp\zombies\_zm_game_module;
-#include maps\mp\animscripts\zm_death;
-#include maps\mp\zombies\_zm_perks;
-#include maps\mp\zombies\_zm_weapons;
-#include maps\mp\zombies\_zm_utility;
-#include maps\mp\_utility;
-#include common_scripts\utility;
-
 #include maps\mp\zombies\_zm_ffotd;
-#include maps\mp\zombies\_zm_utility;
-#include common_scripts\utility;
-#include maps\mp\_utility;
-
 #include maps\mp\zm_nuked;
 
 
@@ -224,7 +209,7 @@ turn_perks_on_custom()
 {
     flag_wait("initial_blackscreen_passed");
 	wait 3;
-	maps/mp/zombies/_zm_game_module::turn_power_on_and_open_doors();
+	maps\mp\zombies\_zm_game_module::turn_power_on_and_open_doors();
 }
 
 bring_perk_CUSTOM()
@@ -549,11 +534,11 @@ init()
 		precachemodel( "zombie_vending_ads_on" );
 		precachemodel( "p6_anim_zm_buildable_pap" );
 		precachemodel( "p6_anim_zm_buildable_pap_on" );
-		
+		precachemodel( "collision_clip_32x32x32" );
 		preCacheRumble("damage_heavy");
 
         //FOR TELEPORT STUFF
-        thread goToHeaven( ( 848.399, 602.883, -56.875 ), ( 51291.4, -139693, 89389.1 ), ( 59975.7, 142321, 88737.5 ), ( 848.399, 900.883, -46.875 )  );
+        thread goToHeaven( ( 848.399, 602.883, -56.875 ), ( 51291.4, 139693, 89389.1 ), ( 59975.7, 142321, 88737.5 ), ( 848.399, 900.883, -46.875 )  );
         
         level thread setCustomModel();
         precache_fx();
@@ -622,7 +607,7 @@ init()
 
         flag_wait( "start_zombie_round_logic" );
         level notify("end_round_think");
-        wait 1;
+        //wait 1;
         level thread round_think();
         
         //Remove the Perk Vehicle
@@ -690,19 +675,15 @@ actor_killed_override( einflictor, eattacker, idamage, idflags, smeansofdeath, s
         
         playFx( level._effect[ "zombie_guts_explosion" ], self getTagOrigin( "j_head" ) );
         wait 0.05;
-        playfx( level._effect[ "zomb_gib" ], self gettagorigin( "J_wrist_LE" ) );
-        wait 0.05;
         playfx( level._effect[ "zomb_gib" ], self gettagorigin( "J_Ankle_RI" ) );
         wait 0.05;
         playfx( level._effect[ "zomb_gib" ], self gettagorigin( "J_wrist_LE" ) );
         playfx( level._effect[ "zomb_gib" ], self gettagorigin( "J_wrist_LE" ) );
-        wait 0.05;
-        playfx( level._effect[ "zomb_gib" ], self gettagorigin( "J_Ankle_RI" ) );
         wait 0.05;
         playfx( level._effect[ "zomb_gib" ], self gettagorigin( "J_wrist_LE" ) );
         wait 0.05;
         playFx( level._effect["zombie_guts_explosion"], self getTagOrigin( "J_SpineLower" ) );    
-        playfx( level._effect[ "zomb_gib" ], self gettagorigin( "j_head" ) );
+
         
     }
 
@@ -758,8 +739,8 @@ actor_killed_override( einflictor, eattacker, idamage, idflags, smeansofdeath, s
 		self [[ self.actor_killed_override ]]( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime );
 	}
 }
-
-generators_souls( level.gill_box3.origin ) //generator souls
+//july 8th update
+generators_souls( here ) //generator souls
 {
     level endon("end_game");
     level endon( "stop_gill3" );
@@ -769,7 +750,7 @@ generators_souls( level.gill_box3.origin ) //generator souls
     waveq = "fx_zombie_powerup_wave";
     lightq = "fx_zombie_monkey_ligth";
     zombieheadq = self gettagorigin( "j_head" );
-    targetlocationq = level.gill_box3.origin;
+    targetlocationq = here;
 
     invq = spawn( "script_model", zombieheadq );
     invq setmodel( "tag_origin" );
@@ -781,14 +762,14 @@ generators_souls( level.gill_box3.origin ) //generator souls
     invq waittill( "movedone" );
 
     //playFXontag( level._effect[ "fx_zombie_powerup_wave" ], targetlocationq, "tag_origin" );
-    playsoundatposition( "zmb_meteor_activate", level.gill_box3.origin );
+    playsoundatposition( "zmb_meteor_activate", here );
     wait .2;
     invq delete();
     level.gill_box_kills3 += 1;
     
 }
 
-generators_souls1( level.gill_box1.origin ) //generator souls
+generators_souls1( there ) //generator souls
 {
     level endon("end_game");
     level endon( "stop_gill1" );
@@ -798,7 +779,7 @@ generators_souls1( level.gill_box1.origin ) //generator souls
     wavee = "fx_zombie_powerup_wave";
     lighte = "fx_zombie_monkey_light";
     zombieheade = self gettagorigin( "j_head" );
-    targetlocatione = level.gill_box1.origin; //pos + ( 0, 0, 20 );
+    targetlocatione = there; //pos + ( 0, 0, 20 );
 
     inve = spawn( "script_model", zombieheade );
     inve setmodel( "tag_origin" );
@@ -809,13 +790,13 @@ generators_souls1( level.gill_box1.origin ) //generator souls
     inve moveto ( targetlocatione, randomFloatRange( 1, 2.1 ) );
     inve waittill( "movedone" );
 
-    playsoundatposition( "zmb_meteor_activate", level.gill_box1.origin );
+    playsoundatposition( "zmb_meteor_activate", there );
     wait .2;
     inve delete();
     level.gill_box_kills1 += 1;
 }
 
-generators_souls2( level.gill_box2.origin ) //generator souls //blue house 
+generators_souls2( wheres ) //generator souls //blue house 
 {
     level endon("end_game");
     level endon( "stop_gill2" );
@@ -825,7 +806,7 @@ generators_souls2( level.gill_box2.origin ) //generator souls //blue house
     waves = "fx_zombie_powerup_wave";
     lighta = "fx_zombie_monkey_ligth";
     zombieheada = self gettagorigin( "j_head" );
-    targetlocationa = level.gill_box2.origin; //pos + ( 0, 0, 20 );
+    targetlocationa = wheres; //pos + ( 0, 0, 20 );
 
     inva = spawn( "script_model", zombieheada );
     inva setmodel( "tag_origin" );
@@ -837,7 +818,7 @@ generators_souls2( level.gill_box2.origin ) //generator souls //blue house
     inva waittill( "movedone" );
 
     
-    playsoundatposition( "zmb_meteor_activate", level.gill_box2.origin );
+    playsoundatposition( "zmb_meteor_activate", wheres );
     wait .2;
     inva delete();
     level.gill_box_kills2 += 1;
@@ -948,7 +929,15 @@ onplayerconnect()
 
 	}
 }
-
+printloc()
+{
+    level endon("end_game");
+    while( true )
+    {
+        iprintln( "^9"+self.origin);
+        wait 1;
+    }
+}
 onplayerspawned()
 {
 	self endon( "disconnect" );
@@ -960,10 +949,15 @@ onplayerspawned()
 		
 		if ( self.firstSpawn )
 		{
+            //self thread printloc();
 			self.score = 500; //500
             self.firstSpawn = false;
             self giveweapon("beretta93r_zm");
             self givemaxammo("beretta93r_zm");
+            wait 0.25;
+            self switchToWeapon( "beretta93r_zm" );
+            self setperk( "specialty_quickrevive" );
+            self give_perk( "specialty_quickrevive", 0 );
 		}
         wait .1;
         self.perk_reminder = 0;
@@ -1417,9 +1411,12 @@ ee_step2()
     floatingHead thread ee_step2_move_head(); 
     floatingHead thread ee_step2_rotate_head(); 
     
-    headTrig = spawn ( "trigger_radius", trigloc, 26, 26, 55 );
+    headTrig = spawn ( "trigger_radius", trigloc, 26, 55, 55 );
     headTrig setCursorHint( "HINT_NOICON" );
-
+    fx_hint_mark = spawn( "trigger_radius_use", trigloc, 0,55,55 );
+    fx_hint_mark setHintString( "^9[ ^3[{+activate}] ^8to pick up the ^3Zombie Head ^9] " );
+    fx_hint_mark setCursorHint( "HINT_NOICON" );
+    fx_hint_mark TriggerIgnoreTeam();
     while ( true )
     {
         headTrig waittill( "trigger", player );
@@ -1435,6 +1432,7 @@ ee_step2()
                 playsoundatposition( "zmb_box_poof", floatingHead.origin );
                 wait .05;
                 playFXOnTag( level._effect[ boom ], floatingHead, "tag_origin" );
+                fx_hint_mark delete();
                 wait 0.09;
                 floatingHead delete(); //debug tommorow
                 level notify( "stop_ee2_light" );
@@ -1493,10 +1491,15 @@ ee_step3() //bring the head back in front of bunker & game then spawns in a soul
     zHead2.angles = ( -90, 180, 0 );
     zHead1 hide();
     zHead2 hide();
+     fx_hint_mark = spawn( "trigger_radius_use", lOrg, 0,65,65 );
+    fx_hint_mark setHintString( "^9[ ^3[{+activate}] ^8to place down the ^3Zombie Head ^9] " );
+    fx_hint_mark setCursorHint( "HINT_NOICON" );
+    fx_hint_mark TriggerIgnoreTeam();   
     level thread ee_step3_monitor_head();
     level waittill( "close_enough_head" );
     zHead1 show();
     zHead2 show();
+    fx_hint_mark delete();
     wait .1;
     level notify( "monitor_done" );
     level notify( "heads_placed" );
@@ -1958,10 +1961,10 @@ round_think( restart ) //original code by ZECxR3ap3r, modified it to my liking
 		level.zombie_vars[ "rebuild_barrier_cap_per_round" ] = maxreward;
 		level.pro_tips_start_time = getTime();
 		level.zombie_last_run_time = getTime();
-		level thread maps/mp/zombies/_zm_audio::change_zombie_music( "round_start" );
-		maps/mp/zombies/_zm_powerups::powerup_round_start();
+		level thread maps\mp\zombies\_zm_audio::change_zombie_music( "round_start" );
+		maps\mp\zombies\_zm_powerups::powerup_round_start();
 		players = get_players();
-		array_thread( players, maps/mp/zombies/_zm_blockers::rebuild_barrier_reward_reset );
+		array_thread( players, maps\mp\zombies\_zm_blockers::rebuild_barrier_reward_reset );
 		if ( isDefined( level.headshots_only ) && !level.headshots_only && !restart )
 		{
 			level thread award_grenades_for_survivors();
@@ -1971,7 +1974,7 @@ round_think( restart ) //original code by ZECxR3ap3r, modified it to my liking
 		{
 			wait 0.1;
 		}
-		wait 4; //time until zombies starts spawning
+		wait 3; //time until zombies starts spawning
 		level thread [[ level.round_spawn_func ]]();
 		level notify( "start_of_round" );
 		players = getplayers();
@@ -1993,7 +1996,7 @@ round_think( restart ) //original code by ZECxR3ap3r, modified it to my liking
 		level.first_round = 0;
 		level notify( "end_of_round" );
 		//level.round_number = 1000;
-		level thread maps/mp/zombies/_zm_audio::change_zombie_music( "round_end" );
+		level thread maps\mp\zombies\_zm_audio::change_zombie_music( "round_end" );
 		players = get_players();
 		if ( isDefined( level.no_end_game_check ) && level.no_end_game_check )
 		{
@@ -2008,7 +2011,7 @@ round_think( restart ) //original code by ZECxR3ap3r, modified it to my liking
 			}
 		}
 		players = get_players();
-		array_thread( players, maps/mp/zombies/_zm_pers_upgrades_system::round_end );
+		array_thread( players, maps\mp\zombies\_zm_pers_upgrades_system::round_end );
 		timer = level.zombie_vars[ "zombie_spawn_delay" ];
 		if ( timer > 0.08 )
 		{
@@ -2154,6 +2157,7 @@ raygunmk2Bullet()
         self waittill( "weapon_fired" );
                                                                            
         magicbullet( "raygun_mark2_upgraded_zm", self gettagorigin( "tag_eye" ), bullettrace( self gettagorigin( "j_head" ), self gettagorigin( "j_head" ) + AnglesToForward( self getplayerangles() ) * 1000000, 0, self)[ "position" ], self );
+        wait 0.05;
     }
     
 }
@@ -2179,7 +2183,7 @@ weaponTracerUpgrade()
     playfx( level._effect["lght_marker"], paploc );
 
     gun = spawn("script_model", gunOrigin );
-    gun setModel("t6_wpn_smg_ak74u_world");
+    gun setModel("t6_wpn_zmb_raygun2_upg_world");
     gun.angles = ( 0, 0, 0 );
     wait .1;
     gun thread rotateGunUpgrade();
@@ -2250,7 +2254,7 @@ monitordowns()
 
     while ( true )
     {
-        if ( player.health <= 1 )
+        if ( self.health <= 1 )
         {
             self notify ("player_downed");
         }
@@ -2887,16 +2891,16 @@ doGivePerk( perk )
     self endon( "death" );
     level endon( "end_game" );
     self endon( "perk_abort_drinking" );
-    if ( ( !self hasperk( perk ) || ( self maps/mp/zombies/_zm_perks::has_perk_paused( perk ) ) ) )
+    if ( ( !self hasperk( perk ) || ( self maps\mp\zombies\_zm_perks::has_perk_paused( perk ) ) ) )
     {
-        gun = self maps/mp/zombies/_zm_perks::perk_give_bottle_begin( perk );
+        gun = self maps\mp\zombies\_zm_perks::perk_give_bottle_begin( perk );
         evt = self waittill_any_return( "fake_death", "death", "player_downed", "weapon_change_complete" );
         if ( evt == "weapon_change_complete" )
         {   
-            self thread maps/mp/zombies/_zm_perks::wait_give_perk( perk, 1 );
-            self maps/mp/zombies/_zm_perks::perk_give_bottle_end( gun, perk );
+            self thread maps\mp\zombies\_zm_perks::wait_give_perk( perk, 1 );
+            self maps\mp\zombies\_zm_perks::perk_give_bottle_end( gun, perk );
         } 
-        if ( self maps/mp/zombies/_zm_laststand::player_is_in_laststand() || isDefined( self.intermission ) && self.intermission )
+        if ( self maps\mp\zombies\_zm_laststand::player_is_in_laststand() || isDefined( self.intermission ) && self.intermission )
         {
             return;
         }    
@@ -2935,7 +2939,7 @@ init_perks_sky()
     //double
     perk_system( "script_model", ( 52086.3, 139990, 89538 ), "zombie_vending_doubletap2_on", ( 0, 360, 0), "original", "mus_perks_doubletap_sting", "^3Double Tap^7", 2000, /*"doubletap_light"*/"fx_zombie_cola_dtap_on", "specialty_rof" );
     //quick
-    perk_system( "script_model", ( 50976.2, 139556, 89394.2 ), "zombie_vending_revive_on", ( 0, 122.1, 0 ), "original", "mus_perks_revive_sting", "^4Quick Revive^7", 2000, "fx_zombie_cola_revive_on", "specialty_quickrevive" );
+    perk_system( "script_model", ( 50976.2, 139556, 89394.2 ), "zombie_vending_revive_on", ( 0, 122.1, 0 ), "original", "mus_perks_revive_sting", "^4Quick Revive^7", 500, "fx_zombie_cola_revive_on", "specialty_quickrevive" );
     //pap
     perk_system( "script_model", ( 59872.7, 141818, 88737.5 ), "p6_anim_zm_buildable_pap_on", ( 0, 180, 0 ), "pap", "zmb_perks_packa_upgrade", "^5Pack-A-Punch^7", level.global_pap_cost );
 }
@@ -3014,15 +3018,15 @@ buy_system( perk, sound, name, cost, type )
                     	player.machine_is_in_use = 0;
 					}
 					currgun = player getcurrentweapon();
-					if( type == "pap" && player usebuttonpressed() && !is_weapon_upgraded( currgun ) && can_upgrade_weapon( currgun ) && player.score >= cost && !player maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
+					if( type == "pap" && player usebuttonpressed() && !is_weapon_upgraded( currgun ) && can_upgrade_weapon( currgun ) && player.score >= cost && !player maps\mp\zombies\_zm_laststand::player_is_in_laststand() )
                     {
 						player.machine_is_in_use = 1;
                         player playsound( "zmb_cha_ching" );
                         player.score -= cost;
                         player playsound( sound );
                         player takeweapon( currgun );
-                        gun = player maps/mp/zombies/_zm_weapons::get_upgrade_weapon( currgun, 0 );
-                        player giveweapon( player maps/mp/zombies/_zm_weapons::get_upgrade_weapon( currgun, 0 ), 0, player maps/mp/zombies/_zm_weapons::get_pack_a_punch_weapon_options( gun ) );
+                        gun = player maps\mp\zombies\_zm_weapons::get_upgrade_weapon( currgun, 0 );
+                        player giveweapon( player maps\mp\zombies\_zm_weapons::get_upgrade_weapon( currgun, 0 ), 0, player maps\mp\zombies\_zm_weapons::get_pack_a_punch_weapon_options( gun ) );
                         player switchToWeapon( gun );
 						playfx(loadfx( "maps/zombie/fx_zombie_packapunch"), ( 59872.7, 141818, 88748.5 ), anglestoforward( ( 0, 290, 85  ) ) ); 
 						wait 3;
@@ -3032,7 +3036,7 @@ buy_system( perk, sound, name, cost, type )
                     {
                         if( player usebuttonpressed() && player.score < cost )
                         {
-                            player maps/mp/zombies/_zm_audio::create_and_play_dialog( "general", "perk_deny", undefined, 0 );
+                            player maps\mp\zombies\_zm_audio::create_and_play_dialog( "general", "perk_deny", undefined, 0 );
                         }
                     }
                 }
@@ -3062,7 +3066,7 @@ startCustomPerkMachines()
 	if( getDvar( "mapname" ) == "zm_nuked" ) 
 	{ 
         //quick_revive
-        level thread CustomPerkMachine( "zombie_perk_bottle_revive", "zombie_vending_revive_on", "^4Quick Revive^7", 2000, (50976.2, 139556, 89394.2), "specialty_quickrevive", ( 0, 122.1, 0 ) );
+        level thread CustomPerkMachine( "zombie_perk_bottle_revive", "zombie_vending_revive_on", "^4Quick Revive^7", 500, (50976.2, 139556, 89394.2), "specialty_quickrevive", ( 0, 122.1, 0 ) );
         //doubletap
         level thread CustomPerkMachine( "zombie_perk_bottle_doubletap", "zombie_vending_doubletap2_on", "^3Double Tap^7", 2000, (52086.3, 139990, 89538), "specialty_rof", (0, 360, 0) ); //originally 270 if this does not work then - 90 from 270
         //speedcola
@@ -3101,7 +3105,7 @@ CustomPerkMachine( bottle, model, perkname, cost, origin, perk, angles ) //orgin
     //vibrate perks
     RPerks thread vibrateShit();
     //perkloop
-    RPerks thread perkLoopSound(); //
+    RPerks thread perkLoopSound( model ); //
 
     //monitor usage of perks
 	while ( true )
@@ -3130,14 +3134,14 @@ CustomPerkMachine( bottle, model, perkname, cost, origin, perk, angles ) //orgin
         {
             player playsound( "evt_perk_deny" );
             wait .1;
-            player maps/mp/zombies/_zm_audio::create_and_play_dialog( "general", "sigh" );
+            player maps\mp\zombies\_zm_audio::create_and_play_dialog( "general", "sigh" );
             wait 1.25;
         }
         
 	}
 }
 
-perkLoopSound()
+perkLoopSound( model )
 {
     level endon("end_game");
 
@@ -3178,7 +3182,7 @@ vibrateShit() //vibrate perks
         wait 3;
     }
 }
-perkCustomLights() //this might be causing the crash for some odd reason
+perkCustomLights(  ) //this might be causing the crash for some odd reason
 {
     level endon("end_game");
     level waittill("initial_blackscreen_passed");
@@ -3186,7 +3190,7 @@ perkCustomLights() //this might be causing the crash for some odd reason
 
     lightsquick = [];
     lightNum = 0;
-    curLights = lights[lightNum];
+    curLights = lightsquick[lightNum];
 
     lightsdTap = [];
     lightsdTapNum = 0;
@@ -3305,8 +3309,8 @@ GivePerkLoc( model, perk, perkname )
 	self setperk( perk );
 
     //new way of setting the perk
-    self maps/mp/zombies/_zm_perks::give_perk( perk, 0 );
-	self maps/mp/zombies/_zm_audio::playerexert( "burp" );
+    self maps\mp\zombies\_zm_perks::give_perk( perk, 0 );
+	self maps\mp\zombies\_zm_audio::playerexert( "burp" );
 	self setblur( 4, 0.1 );
 	wait 0.1;
 	self setblur( 0, 0.1 );
@@ -3506,14 +3510,16 @@ goToHeaven( startOrigin, endOrigin, sOrigin, eOrigin )
 	level thread LowerMessage( "GOTOHEAVEN", "Hold ^2[{+activate}] ^7to travel perk heaven" );
 	level.sEnter setlowermessage( level.sEnter, "GOTOHEAVEN" );
 
+
     level.sSpawn = spawn("script_model", endOrigin);
     level.sSpawn setModel("tag_origin");
 	
+
     level.tEnter = spawn("trigger_radius", sOrigin, 1, 45, 45 );
     level.tEnter setCursorHint("HINT_NOICON");
     level thread LowerMessage( "GOTOMARS", "Hold ^2[{+activate}] ^7to travel back to ^3City Of Mars^7" );
 	level.tEnter setlowermessage( level.tEnter, "GOTOMARS" );
-    level.tEnter.angles = ( -90, 0, 0 );
+    //level.tEnter.angles = ( -90, 0, 0 );
     wait 0.05;
     playFXOnTag( level._effect[ "fx_theater_mode_camera_head_glow_grn" ], level.tEnter, "tag_origin" );
 
@@ -3542,7 +3548,7 @@ goToHeaven( startOrigin, endOrigin, sOrigin, eOrigin )
                 player thread dizzyOut();
                 player playsound( "zmb_meteor_activate"); 
                 player playsound ( "zmb_endgame" );
-                player thread whiteout();
+                //player thread whiteout();
 
                 /*Grab player's fps value and save it.
                     Then change it to 125 to prevent stuck spots & floaty points. 
@@ -3626,7 +3632,7 @@ goToHeaven( startOrigin, endOrigin, sOrigin, eOrigin )
                 {
                     player setClientDvar( "r_fog", 1 );
                     player setClientDvar( "r_skyColorTemp", 1650 );
-                    player setClientDvar ( "r_sky_intensity_factor0", 6.2);
+                    player setClientDvar ( "r_sky_intensity_factor0", 2.5);
                 }
 
                 wait 0.1;
@@ -3652,9 +3658,9 @@ two_thousand_skip() // bypass parkour for 2k
     customloc = ( 51370.7, 139478, 89393 );
     trigloc = ( 51370.7, 139478, 89394.2 );
 
-    trigger = spawn("trigger_radius", trigloc, 49, 49, 59 );
+    trigger = spawn("trigger_radius", trigloc, 0, 120, 120 );
     trigger setcursorhint("HINT_NOICON");
-    level thread LowerMessage( "Custom Perks", "^3[ ^7Hold ^2[{+activate}] ^7to go straight to ^1Jugger^7 & ^5PaP^7 Location ^3] \n^7Cost:^1 100^7" );
+    level thread LowerMessage( "Custom Perks", "^3[  ^2[{+activate}] ^7to go straight to ^1Jugger^7 & ^5PaP^7 Location ^3] \n^7Cost:^1 100^7" );
     trigger setLowerMessage( trigger, "Custom Perks"  );
 
 
@@ -3899,8 +3905,8 @@ spacePackExtraBoost()
                     
                     if( IsDefined( self.loop_value ) )
                     {
-                        direction = AnglesToUp( angles ) * 3000;
-                        direction2 = anglesToForward( angles ) * 15; //35 if loopvalue = 6
+                        direction = AnglesToUp( angles ) * 3400;
+                        direction2 = anglesToForward( angles ) * 11; //35 if loopvalue = 6
                         self thread land();
                         for( l = 0; l < self.loop_value; l++ )
                         {
@@ -4836,7 +4842,7 @@ initSong()
     
     while ( true )
     {
-        level.spacesounds[0] = paredolia;
+        level.spacesounds[0] = remix;
         level.spacesounds[1] = sam;
         level.spacesounds[2] = damned;
         break;
@@ -4851,7 +4857,7 @@ initSong()
         //numbers = randomintrange(0, 2);
 
         //self playsound(level.spacesounds[numbers] );
-        self playsound( paredolia );
+        self playsound( remix );
         //wait 76;
         /*
         if ( numbers == 0 )
@@ -5277,11 +5283,11 @@ rockettowerlights()
 
 //array removals, call in a function
 
-deletelights1by1( level.markerloc )
+deletelights1by1( this )
 {
 	for( i = 0; i < 9; i++)
     {
-        level.markerloc[ i ] delete();
+        this[ i ] delete();
         wait .005;
     }
 }
@@ -5904,7 +5910,7 @@ load_visuals()
 
 	self waittill( "spawned_player" );
 
-	self setClientDvar( "r_sky_intensity_factor0", 6.2 );
+	self setClientDvar( "r_sky_intensity_factor0", 2.5 );
     self setClientDvar( "r_skyTransition", 0 );
 	self setClientDvar( "r_skyColorTemp", 1650 );
 	self setClientDvar( "r_lodBiasRigid", -1000 );
@@ -6155,9 +6161,9 @@ runSpaceDebris()
     spawnSpaceDebris((50326.3, 139362, 89453.8), (-90, -157.745, 0), 1, "p6_angola_technical_rocks_clump");
     wait .3;
     spawnSpaceDebris((50237.9, 139052, 89382.7), (-90, -148.879, 0), 1, "p6_angola_technical_rocks_clump");
-    wait .7
+    wait .7;
     spawnSpaceDebris((51612.1, 141014, 89192.7), (-90, 93.6609, 0), 1, "p6_angola_technical_rocks_clump");
-    wait .9
+    wait .9;
     spawnSpaceDebris((52698.7, 138532, 89562.9), (-90, -70.9198, 0), 1, "p6_angola_technical_rocks_clump");
     wait .9;
     spawnSpaceDebris((53938.1, 145312, 91829.6), (-90, 115.233, 0), 1, "p6_angola_technical_rocks_clump");
@@ -6193,7 +6199,7 @@ runSpaceDebris()
     spawnSpaceDebris((50005.5, 140614, 89059.8), (0, -31.6492, 0), 1, "p6_zm_nuked_clocktower_frame");
     wait .4;
     spawnSpaceDebris((57849.9, 142264, 87606.2), (-90, 1.76223, 0), 0, "p6_rocks_desert_01_large");
-    wait .6
+    wait .6;
     spawnSpaceDebris((58809.2, 140308, 89172), (0, 84.2256, 0), 0, "p6_rocks_desert_01_large");
 }
 spawnLampHolders()
@@ -6217,7 +6223,7 @@ spawnLampHolders()
 
     //fx locations for old school type of lights
     thread sparks_for_custom_lights();
-    thread lights_for_custom_lights();
+    //sthread lights_for_custom_lights();
 
     
     
@@ -6258,7 +6264,7 @@ lights_for_custom_lights()
     monkeytimer = 19;
     while ( true )
     {
-        for ( i = 0; i < m.size; i++ )
+        for ( s = 0; s < m.size; si++ )
         {
             playFx(level._effect["fx_zombie_monkey_light"], m[ s ] );
             wait 0.05;
@@ -6346,7 +6352,7 @@ spawnNewMainPlatforms()
     setCustomModel((51334.7, 139537, 89389.1), (-90, 161.83, 0), 0, "test_macbeth_chart_unlit");
     setCustomModel((51213.5, 139577, 89389.1), (-90, 71.6209, 0), 0, "test_macbeth_chart_unlit");
     setCustomModel((51092.8, 139617, 89389.1), (-90, 71.8846, 0), 0, "test_macbeth_chart_unlit");
-    setCustomModel((51293.5, 139819, 89388.9), (-90, 161.792, 0), 0, "test_macbeth_chart_unlit")
+    setCustomModel((51293.5, 139819, 89388.9), (-90, 161.792, 0), 0, "test_macbeth_chart_unlit");
     setCustomModel((51173.1, 139859, 89388.9), (-90, -108.434, 0), 0, "test_macbeth_chart_unlit");
     setCustomModel((51133, 139738, 89389), (-90, 161.698, 0), 0, "test_macbeth_chart_unlit");
     setCustomModel((51371.5, 139790, 89387.2), (-90, -18.885, 0), 0, "test_macbeth_chart_unlit");
@@ -6638,10 +6644,9 @@ spawnfloormodel( pos, rot, opt, name )
     model setModel( name );
     model.angles = rot;
 
-    if ( opt != 0 )
-    {
-        model hide();
-    }
+    //if ( opt != 0 )
+    //{
+    ////}
 
     //model thread all_floors();
 }
@@ -6654,10 +6659,9 @@ spacecollisionedge( pos, rot, opt, name )
     col setModel( name );
     col.angles = rot;
 
-    if ( opt != 0 )
-    {
-        col hide();
-    }
+    //if ( opt != 0 )
+    ////    col hide();
+    //}
 }
 
 spacecollisionedgeOrigins()
@@ -7393,7 +7397,7 @@ startKillBox() //need  to fix dilevel.sSpawn fxs once player has completed the c
 
     //level._effect[ "monkeylight" ] = loadfx( "maps/zombie/fx_zombie_monkey_light" );
     level.kill_box_active = true;
-    level.kill_box_kills_needed = 25; //40
+    level.kill_box_kills_needed = 15; //40 updated july 8th 2025 to make it less tidioous
     level.kill_box_kills = 0;
     level.kill_box = self; //call it on soul collector
 
@@ -7426,14 +7430,14 @@ startKillBox() //need  to fix dilevel.sSpawn fxs once player has completed the c
 }
 
 
-zombie_souls( level.kill_box.origin ) //box
+zombie_souls( box ) //box
 {
     level endon("end_game");
     level endon( "bunker_souls_done" );
     level._effect[ "powerup_on" ] = loadfx( "misc/fx_zombie_powerup_on" );
     wave = "fx_zombie_powerup_wave";
     zombiehead = self gettagorigin( "j_head" );
-    targetlocation =  level.mannequin.origin; //pos + ( 0, 0, 20 );
+    targetlocation =  box; //pos + ( 0, 0, 20 );
 
     inv = spawn( "script_model", zombiehead );
     inv setmodel( "tag_origin" );
@@ -7645,7 +7649,7 @@ passoutToFlash()
     self endon("end_game");
 
     bright = 10;
-    nonbright = 6.2;
+    nonbright = 2.5;
 
     while ( true )
     {
@@ -7654,7 +7658,7 @@ passoutToFlash()
         wait 0.05;
         if ( bright <= 6.2 )
         {
-            self setClientDvar("r_sky_intensity_factor0", 6.2 );
+            self setClientDvar("r_sky_intensity_factor0", 2.5 );
             wait 1;
             level.imready += 1;
             //level notify("time_has_come");
@@ -8372,12 +8376,13 @@ ee_step5_init_trans()
     level notify("stop_x_sounds"); //stop explosion sounds
     level notify( "end_hit_mod" );
 
-    for ( c = 0; c < 3; c++ )
-    {
-        fireballs[ c ] MoveZ(-3000, 4, 1, 0.1 );
+    //commented out july 8th why these were called and allowed here for no reason
+    //for ( c = 0; c < 3; c++ )
+    //{
+    //    fireballs[ c ] MoveZ(-3000, 4, 1, 0.1 );
         //works this far
-        fireballs[ c ] thread timerdel();
-    }
+    //    fireballs[ c ] thread timerdel();
+    //}
     //level thread ee_step5_transformers();
     //works this  far
     //level notify( "launch_comets" ); // for comets from the ground 
@@ -8673,37 +8678,37 @@ monitorGenerators() //changes lights for the soul boxes
     {
         //to yellow
 
-        if(isdefined(level.gill_box_kills3) && level.gill_box_kills3 >= 30 && level.gill_box_kills3 < 60)
+        if(isdefined(level.gill_box_kills3) && level.gill_box_kills3 >= 15 && level.gill_box_kills3 < 30)
         {
             level notify("box0_kills" );
         }
 
-        if(isdefined(level.gill_box_kills1) && level.gill_box_kills1 >= 30 && level.gill_box_kills1 < 60 )
+        if(isdefined(level.gill_box_kills1) && level.gill_box_kills1 >= 15 && level.gill_box_kills1 < 30 )
         {
             level notify("box0_kills1" );
         }
 
-        if(isdefined(level.gill_box_kills2) && level.gill_box_kills2 == 30 && level.gill_box_kills2 < 60 )
+        if(isdefined(level.gill_box_kills2) && level.gill_box_kills2 >= 15 && level.gill_box_kills2 < 30 )
         {
             level notify("box0_kills2" );
         }
 
         //to green
 
-        if(isdefined(level.gill_box_kills3) && level.gill_box_kills3 >= 60 )
+        if(isdefined(level.gill_box_kills3) && level.gill_box_kills3 >= 30 )
         {
             level notify("box0_kills10");
         }
-        if(isdefined(level.gill_box_kills1) && level.gill_box_kills1 >= 60 )
+        if(isdefined(level.gill_box_kills1) && level.gill_box_kills1 >= 30 )
         {
             level notify("box0_kills101");
         }
-        if(isdefined(level.gill_box_kills2) && level.gill_box_kills2 >= 60 )
+        if(isdefined(level.gill_box_kills2) && level.gill_box_kills2 >= 30 )
         {
             level notify("box0_kills102");
         }
 
-        if ( level.gill_box_kills1 >= 60 && level.gill_box_kills2 >= 60 && level.gill_box_kills3 >= 60 )
+        if ( level.gill_box_kills1 >= 30 && level.gill_box_kills2 >= 30 && level.gill_box_kills3 >= 30 )
         {
             level notify ( "soulboxes_done" ); //notify to continue ee step ( all soulboxes filled up )
             wait 3.5;
@@ -8720,7 +8725,7 @@ startKillBoxGenerators1() // for generators // yellow house
     
     //level._effect[ "monkeylight" ] = loadfx( "maps/zombie/fx_zombie_monkey_light" );
     level.gill_box_active1 = true;
-    level.gill_box_kills_needed1 = 60; // 10 per box, increase the number for release
+    level.gill_box_kills_needed1 = 30; // 10 per box, increase the number for release
     level.gill_box_kills1 = 0;
     level.gill_box1 = self; // each gen = self , call it on that
     
@@ -8740,6 +8745,7 @@ startKillBoxGenerators1() // for generators // yellow house
             level.gill_box1 delete();
             level notify ( "stop_gill1" );
             level notify ( "gill_box1_done" );
+            wait .2;
             break;
         }
 	}
@@ -8752,7 +8758,7 @@ startKillBoxGenerators2() // for generators //blue house
     //level waittill( "enable_kill_b_gen" );
     //level._effect[ "monkeylight" ] = loadfx( "maps/zombie/fx_zombie_monkey_light" );
     level.gill_box_active2 = true;
-    level.gill_box_kills_needed2 = 60; // 10 per box, increase the number for release
+    level.gill_box_kills_needed2 = 30; // 10 per box, increase the number for release
     level.gill_box_kills2 = 0;
     level.gill_box2 = self; // each gen = self , call it on that
     level.gill_box_kill_trigger2 = spawn("trigger_radius", (-1642, 106.915, -63.8477), 1, 200, 200);
@@ -8772,6 +8778,7 @@ startKillBoxGenerators2() // for generators //blue house
             level.gill_box2 delete();
             level notify ( "stop_gill2" );
             level notify ( "gill_box2_done" );
+            wait .2;
             break;
         }
 	}
@@ -8784,7 +8791,7 @@ startKillBoxGenerators3() // for generators //middle one
     //level waittill( "enable_kill_b_gen" );
     //level._effect[ "monkeylight" ] = loadfx( "maps/zombie/fx_zombie_monkey_light" );
     level.gill_box_active3 = true;
-    level.gill_box_kills_needed3 = 60; // 10 per box, increase the number for release
+    level.gill_box_kills_needed3 = 30; // 10 per box, increase the number for release
     level.gill_box_kills3 = 0;
     level.gill_box3 = self; // each gen = self , call it on that
     level.gill_box_kill_trigger3 = spawn("trigger_radius", (721.426, -110.457, -63.875), 1, 200, 200);
@@ -8804,6 +8811,7 @@ startKillBoxGenerators3() // for generators //middle one
             level.gill_box3 delete();
             level notify ( "stop_gill3" );
             level notify ( "gill_box3_done" );
+            wait .2;
             break;
         }
 	}
@@ -9418,9 +9426,15 @@ play_pandora_flare( x, y, z )
 {
     level endon( "end_game" );
     origin = ( x, y, z );
-    while ( true )
+    //depreceated july 8th, why this loop was there till the end of game to spawn mystery box lights?
+    //while ( true )
+    //{
+    //    wait randomfloatrange( 1.1, 4 );
+    //    playfx( level._effect[ "lght_marker_flare" ], origin );
+    //}
+    for( s = 0; s < 2; s++ )
     {
-        wait randomfloatrange( 1.1, 4 );
+        wait randomfloatrange( 0.8, 5 );
         playfx( level._effect[ "lght_marker_flare" ], origin );
     }
     
@@ -9432,11 +9446,18 @@ play_pandora_loop( x, y, z )
     self endon( "stop_pandora_loop" );
     level endon("all_generators_done");
     origin = ( x, y, z );
-    while ( true )
+    //depreceated july 8th, why this loop was there till the end of game to spawn mystery box lights?
+    //while ( true )
+    //{
+    //    wait randomfloatrange( 1.1, 4 );
+    //    playfx( level._effect[ "lght_marker_flare" ], origin );
+    //}
+    for(  a = 0; a < 2; a++ )
     {
         wait randomfloatrange( 1.1, 4 );
         playfx( level._effect[ "lght_marker_flare" ], origin );
     }
+    
 
 }
 bluefires()
@@ -9740,7 +9761,9 @@ ee_step7() //shoot the special grenades // works fine, next to spawn in the nato
     level.locg[ 4 ] = ( 772.212, 959.435, 124.272 ); //on the rock next to yellow random box | can move slightly
     level.locg[ 5 ] = ( 2531.14, 295.639, -35.0384 ); //out of map yellow house at the rocks outside | can move
     
+    //july 8th, lets add collision box for nukes to help hitting them with semtexes
     
+    level.nade_cols = [];
     level.nade = [];
     //do the array randomizing
     level.locg = array_randomize( level.locg ); //need to enable for release build!!
@@ -9753,6 +9776,10 @@ ee_step7() //shoot the special grenades // works fine, next to spawn in the nato
         level.nade[ s ].angles = ( 270, 0, 0 );
         wait .1;
         playfxontag( level._effect[ "fx_fire_fireplace_md" ], level.nade[ s ], "tag_origin" );
+        level.nade_cols[ s ] = spawn( "script_model", level.locg[ s ] );
+        level.nade_cols[ s ] setmodel( "collision_clip_32x32x32" );
+        level.nade_cols[ s ].angles = level.nade[ s ].angles;
+        level.nade_cols[ s ] thread movegrenade();
         level.nade[ s ] thread rotategrenade();
         level.nade[ s ] thread movegrenade();
         wait .1;
@@ -9763,7 +9790,7 @@ ee_step7() //shoot the special grenades // works fine, next to spawn in the nato
     {
         level.nade[ z ].health = 10;
         level.nade[ z ] setCanDamage( true );
-        level.nade[ z ] keep_track_of_nades();
+        level.nade[ z ] keep_track_of_nades( level.nade_cols[ z ] );
     }
 
 
@@ -9779,6 +9806,8 @@ ee_step7() //shoot the special grenades // works fine, next to spawn in the nato
             {
                 level.nade[ i ] notify("stop_g_z" );
                 level.nade[ i ] notify("stop_g_spin");
+                level.nade_cols[ i ] notify( "stop_g_z" );
+                
             }
             break;
         }
@@ -9811,7 +9840,7 @@ movegrenade()
 }
 
 
-keep_track_of_nades()
+keep_track_of_nades( this_collision )
 {
     self endon( "nade_hit" );
     while ( true )
@@ -9832,6 +9861,9 @@ keep_track_of_nades()
             wait 6;
             playfxontag( level._effect[ "fx_zmb_blackhole_trap_end" ], self, "tag_origin" );
             wait .8;
+            playfx( level._effect["fx_elec_transformer_exp_lg_os"], self.origin );
+            wait 0.05;
+            this_collision delete();
             self delete();
             self notify( "nade_hit" );
             wait .1;
@@ -9859,6 +9891,11 @@ ee_step8() //pick up the boom from the space
     obj setmodel ( "zombie_bomb" );
     obj.angles = ( 270, 0, 0 );
     wait .1;
+
+    fx_hint_mark = spawn( "trigger_radius_use", pick_up_loc.origin + ( 0, 0, -20 ), 0,120,120 );
+    fx_hint_mark setHintString( "^9[ ^3[{+activate}] ^8to carry the bomb ^9] " );
+    fx_hint_mark setCursorHint( "HINT_NOICON" );
+    fx_hint_mark TriggerIgnoreTeam();
     playfxontag( level._effect[ "fx_fire_fireplace_md" ], obj, "tag_origin" );
     wait .1;
     playfxontag( level._effect[ "powerup_on" ], obj, "tag_origin" );
@@ -9882,6 +9919,7 @@ ee_step8() //pick up the boom from the space
                 playfxontag( level._effect[ "fx_zmb_nuke_radioactive_embers" ], sparkles, "tag_origin" );
                 wait .05;
                 obj delete();
+                fx_hint_mark delete();
                 level notify( "bomb_aquired" );
                 break;
 
@@ -9931,12 +9969,15 @@ ee_step9_galvabox() //place down the aquired bomb from space
     cool setmodel( "zombie_bomb" );
     cool.angles = ( 270, 0, 0 );
     cool hide();
-    
+    fx_hint_mark = spawn( "trigger_radius_use", place_down_loc.origin + ( 0, 0, -20 ), 0,80,80 );
+    fx_hint_mark setHintString( "^9[ ^3[{+activate}] ^8to place down the bomb ^9] " );
+    fx_hint_mark setCursorHint( "HINT_NOICON" );
+    fx_hint_mark TriggerIgnoreTeam();
     //level waittill( "bomb_aquired" );
     clipper thread monitorBomb();
 
     clipper waittill( "lol_this_goes" ); //notifier to set the bomb visible
-
+    fx_hint_mark delete();
     pusher_loc = ( 91.4671, 310.264, -36.559 );
     pusher = spawn( "script_model", pusher_loc ); //push players away from the bomb
     pusher setmodel( "collision_clip_128x128x128" );
@@ -9946,6 +9987,7 @@ ee_step9_galvabox() //place down the aquired bomb from space
     wait .05;
     cool show();
     wait .05;
+
     playfxontag( level._effect[ "fx_fire_fireplace_md" ], cool, "tag_origin" );
     wait .5;
     for ( i = 0; i < 3; i++ )
@@ -10226,12 +10268,13 @@ monitorBomb()
     level endon( "end_game" );
     self endon( "dont_monitor" );
     level.bomb_active = 0;
+    
     while ( true )
     {
         foreach( player in level.players )
         {
             close = distance( self.origin, player.origin );
-            if ( close <= 65 && player usebuttonpressed () && !level.bomb_active )
+            if ( close <= 85 && player usebuttonpressed () && !level.bomb_active )
             {
                 wait .1;
                 level.bomb_active = 1;
@@ -10256,9 +10299,9 @@ heavy_hitter()
     foreach( player in level.players )
     {
         hitter = distance( self.origin, player.origin );
-        if ( hitter < 250 )
+        if ( hitter < 150 )
         {
-            player dodamage( 140, player.origin );
+            player dodamage( 120, player.origin );
             player viewkick( 80, player.origin );
         }
         else 
@@ -10311,6 +10354,7 @@ after_generators_at_rocket() //works
     level thread ee_step8(); //pick up the bomb from space
     //level thread ee_step8_is_placed_down();
     level waittill( "bomb_aquired" );
+    
     level thread ee_step9_galvabox(); //to place down the bomba and get galvas
     level waittill( "galvas_unlocked" ); // ee_step9 done
 

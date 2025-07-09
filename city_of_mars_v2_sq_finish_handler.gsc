@@ -4,14 +4,13 @@
     Release: 07/22/2022
     Part of City Of Mars Mod for Black Ops II Plutonium
 */
-
+//TESTING FOR SETLOWREADY FUNC INCLUDES
 #include common_scripts\utility;
 #include maps\_utility;
 #include maps\_anim;
 ///////////////////////////////////////
 #include maps\mp\gametypes\_hud_util;
 #include maps\mp\_utility;
-#include common_scripts\utility;
 #include maps\mp\zombies\_zm_utility;
 #include maps\mp\gametypes_zm\_hud_util;
 #include maps\mp\gametypes_zm\_hud_message;
@@ -111,24 +110,9 @@
 
 
 /*=====================================================================================================================================================================*/
-
 #include maps\mp\zm_nuked_perks;
-
-#include maps\mp\zombies\_zm_game_module;
-#include maps\mp\animscripts\zm_death;
-#include maps\mp\zombies\_zm_perks;
-#include maps\mp\zombies\_zm_weapons;
-#include maps\mp\zombies\_zm_utility;
-#include maps\mp\_utility;
-#include common_scripts\utility;
-
 #include maps\mp\zombies\_zm_ffotd;
-#include maps\mp\zombies\_zm_utility;
-#include common_scripts\utility;
-#include maps\mp\_utility;
-
 #include maps\mp\zm_nuked;
-
 
 init()
 {
@@ -350,6 +334,7 @@ player_reward_flopper()
 
     self setperk( "specialty_phd" );
     self setperk( "specialty_flakjacket" );
+    self thread reward_give_phd();
     //self setperk( "specialty_armorvest" );
     self waittill_any( "death", "remove_static", "disconnect" );
     self.talker_phd destroy_hud();
@@ -357,6 +342,99 @@ player_reward_flopper()
     self.talk_phd[ 1 ] destroy_hud();
 
 }
+
+
+reward_give_phd()
+{
+    level endon( "end_game" );
+    self endon( "disconnect" );
+    wait 1.5;
+    self thread monitor_flopping();
+    set_zombie_var( "zombie_perk_divetonuke_radius", 300 );
+    set_zombie_var( "zombie_perk_divetonuke_min_damage", 1000 );
+    set_zombie_var( "zombie_perk_divetonuke_max_damage", 99999 );
+
+    self setperk( "specialty_flakjacket"  );
+    self setperk( "specialty_phd" );
+
+    while( true )
+    {
+        self waittill_any( "death", "remove_static", "disconnect" );
+        wait 1;
+        self waittill( "spawned_player" );
+        self setperk( "specialty_flakjacket"  );
+        self setperk( "specialty_phd" );
+
+    }
+
+}
+
+monitor_flopping()
+{
+    self endon( "disconnect" );
+    level endon( "end_game" );
+    self endon( "death" );
+    allowed = true;
+    while( true )
+    {
+        if( self StanceButtonPressed() && allowed )
+        {
+            wait 0.1;
+            h_old = self.origin[2];
+            allowed = false;
+            if( self getStance() == "prone" )
+            {
+                if( !self isOnGround() )
+                {   
+                    while( !self isOnGround() )
+                    {
+                        wait 0.05;
+                    }
+                    h_new = self.origin[2];
+                    if( h_new < h_old && h_new < h_old - 100 )
+                    {
+                        org = self getOrigin();
+                        self thread divetonuke_explode( self, org );
+                    }               
+                }
+            }
+            allowed = true;
+        }
+        wait 0.05;
+    }
+}
+
+divetonuke_host_migration_func()
+{
+    flop = getentarray( "vending_divetonuke", "targetname" );
+
+    foreach ( perk in flop )
+    {
+        if ( isdefined( perk.model ) && perk.model == level.machine_assets["divetonuke"].on_model )
+        {
+            perk perk_fx( undefined, 1 );
+            perk thread perk_fx( "divetonuke_light" );
+        }
+    }
+}
+
+divetonuke_explode( attacker, origin )
+{
+    radius = level.zombie_vars["zombie_perk_divetonuke_radius"];
+    min_damage = level.zombie_vars["zombie_perk_divetonuke_min_damage"];
+    max_damage = level.zombie_vars["zombie_perk_divetonuke_max_damage"];
+
+   
+    radiusdamage( origin, radius, max_damage, min_damage, attacker, "MOD_GRENADE_SPLASH" );
+
+    playfx( level._effect[ "fx_zm_nuked_exp_perk_impact_ext" ], origin );
+    wait 0.05;
+    playfx( level.myFx[ 9 ], origin );
+    attacker playsound( "zmb_phdflop_explo" );
+    wait 1;
+}
+
+
 
 player_reward_marathon()
 {
@@ -777,8 +855,8 @@ sq_15_tell_about_rocket_permaperks()
 
     level.talk_permarocket[ 0 ] settext( "Ahhh! All the ^3perks^7 are your's to ^3keep forever!^7" );
     level.talk_permarocket[ 1 ] settext( "I've spawned a ^3wonder weapon^7 for you, go find it!" );
-    level.talk_permarocket[ 2 ] settext( "I'll prepare the final rocket for you while you have fun." );
-    level.talk_permarocket[ 3 ] settext( "I'll be waiting for ^3you.^7" );
+    level.talk_permarocket[ 2 ] settext( "We are done now with the setup, have some fun now with the wonder weapon." );
+    level.talk_permarocket[ 3 ] settext( "I'll be waiting for ^3you^7 to come launch the final rocket from garage!" );
 
     level.talk_permarocket[ 0 ].alpha = 0;
     level.talk_permarocket[ 1 ].alpha = 0;

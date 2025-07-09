@@ -6,15 +6,13 @@
 
 
 
-
-
+//TESTING FOR SETLOWREADY FUNC INCLUDES
 #include common_scripts\utility;
 #include maps\_utility;
 #include maps\_anim;
 ///////////////////////////////////////
 #include maps\mp\gametypes\_hud_util;
 #include maps\mp\_utility;
-#include common_scripts\utility;
 #include maps\mp\zombies\_zm_utility;
 #include maps\mp\gametypes_zm\_hud_util;
 #include maps\mp\gametypes_zm\_hud_message;
@@ -114,22 +112,8 @@
 
 
 /*=====================================================================================================================================================================*/
-
 #include maps\mp\zm_nuked_perks;
-
-#include maps\mp\zombies\_zm_game_module;
-#include maps\mp\animscripts\zm_death;
-#include maps\mp\zombies\_zm_perks;
-#include maps\mp\zombies\_zm_weapons;
-#include maps\mp\zombies\_zm_utility;
-#include maps\mp\_utility;
-#include common_scripts\utility;
-
 #include maps\mp\zombies\_zm_ffotd;
-#include maps\mp\zombies\_zm_utility;
-#include common_scripts\utility;
-#include maps\mp\_utility;
-
 #include maps\mp\zm_nuked;
 
 
@@ -372,6 +356,10 @@ wait_for_radio_signals()
     
     wait 0.1;
     knife_location = ( -1338.97, 990.55, -62.675 );
+    fx_hint_mark = spawn( "trigger_radius_use", knife_location, 0,80,80 );
+    fx_hint_mark setHintString( "^9[ ^3Melee ^8to knock on the door.. ^9] " );
+    fx_hint_mark setCursorHint( "HINT_NOICON" );
+    fx_hint_mark TriggerIgnoreTeam();
     touch_trig = spawn( "trigger_radius", knife_location, 1, 70, 70 );
     touch_trig setcursorhint( "HINT_NOICON" );
     wait 1;
@@ -386,6 +374,7 @@ wait_for_radio_signals()
                 level notify( "beep_talker" );
                 level notify( "bunker_melee" );
                 touch_trig delete();
+                fx_hint_mark delete();
                 wait 0.5;
                 break;
             }
@@ -1605,8 +1594,8 @@ sq_talk_9_traps_enabled()
     
 
     level.talk_traps[ 0 ] settext( "Oh I forgot to tell you about the traps that I fixed for you." );
-    level.talk_traps[ 1 ] settext( "Traps called ^3Soul Seeker^7 & ^3Tesla Void^7 unlocked!" );
-    level.talk_traps[ 2 ] settext( "Enjoy the ^3little^7 treat." );
+    level.talk_traps[ 1 ] settext( "Traps called ^3City Protector^7 & ^3Buzz Shock^7 unlocked!" );
+    level.talk_traps[ 2 ] settext( "Enjoy the ^3little^7 treat. Backyards would be a good place to check.." );
     level.talk_traps[ 3 ] settext( "Now get back to ^3work^7!" );
 
     level.talk_traps[ 0 ].alpha = 0;

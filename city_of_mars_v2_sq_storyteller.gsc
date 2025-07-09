@@ -5,14 +5,13 @@
 */
 
 
-
+//TESTING FOR SETLOWREADY FUNC INCLUDES
 #include common_scripts\utility;
 #include maps\_utility;
 #include maps\_anim;
 ///////////////////////////////////////
 #include maps\mp\gametypes\_hud_util;
 #include maps\mp\_utility;
-#include common_scripts\utility;
 #include maps\mp\zombies\_zm_utility;
 #include maps\mp\gametypes_zm\_hud_util;
 #include maps\mp\gametypes_zm\_hud_message;
@@ -112,22 +111,8 @@
 
 
 /*=====================================================================================================================================================================*/
-
 #include maps\mp\zm_nuked_perks;
-
-#include maps\mp\zombies\_zm_game_module;
-#include maps\mp\animscripts\zm_death;
-#include maps\mp\zombies\_zm_perks;
-#include maps\mp\zombies\_zm_weapons;
-#include maps\mp\zombies\_zm_utility;
-#include maps\mp\_utility;
-#include common_scripts\utility;
-
 #include maps\mp\zombies\_zm_ffotd;
-#include maps\mp\zombies\_zm_utility;
-#include common_scripts\utility;
-#include maps\mp\_utility;
-
 #include maps\mp\zm_nuked;
 
 init()

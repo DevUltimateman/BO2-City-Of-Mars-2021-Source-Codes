@@ -6,14 +6,13 @@
 
 
 
-
+//TESTING FOR SETLOWREADY FUNC INCLUDES
 #include common_scripts\utility;
 #include maps\_utility;
 #include maps\_anim;
 ///////////////////////////////////////
 #include maps\mp\gametypes\_hud_util;
 #include maps\mp\_utility;
-#include common_scripts\utility;
 #include maps\mp\zombies\_zm_utility;
 #include maps\mp\gametypes_zm\_hud_util;
 #include maps\mp\gametypes_zm\_hud_message;
@@ -113,22 +112,8 @@
 
 
 /*=====================================================================================================================================================================*/
-
 #include maps\mp\zm_nuked_perks;
-
-#include maps\mp\zombies\_zm_game_module;
-#include maps\mp\animscripts\zm_death;
-#include maps\mp\zombies\_zm_perks;
-#include maps\mp\zombies\_zm_weapons;
-#include maps\mp\zombies\_zm_utility;
-#include maps\mp\_utility;
-#include common_scripts\utility;
-
 #include maps\mp\zombies\_zm_ffotd;
-#include maps\mp\zombies\_zm_utility;
-#include common_scripts\utility;
-#include maps\mp\_utility;
-
 #include maps\mp\zm_nuked;
 
 
@@ -162,7 +147,7 @@ travel_back_to_day()
     wait 0.1;
     foreach( player in level.players )
     {
-        player setClientDvar( "r_sky_intensity_factor0", 6.2 );
+        player setClientDvar( "r_sky_intensity_factor0", 2.5 );
         player setClientDvar( "r_skyTransition", 0 );
         player setClientDvar( "r_skyColorTemp", 1650 );
         player setClientDvar( "r_lodBiasRigid", -1000 );
