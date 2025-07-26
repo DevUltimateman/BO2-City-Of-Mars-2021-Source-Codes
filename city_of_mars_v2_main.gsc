@@ -1413,10 +1413,12 @@ ee_step2()
     
     headTrig = spawn ( "trigger_radius", trigloc, 26, 55, 55 );
     headTrig setCursorHint( "HINT_NOICON" );
-    fx_hint_mark = spawn( "trigger_radius_use", trigloc, 0,55,55 );
-    fx_hint_mark setHintString( "^9[ ^3[{+activate}] ^8to pick up the ^3Zombie Head ^9] " );
-    fx_hint_mark setCursorHint( "HINT_NOICON" );
-    fx_hint_mark TriggerIgnoreTeam();
+    headTrig setHintString( "^9[ ^3[{+activate}] ^8to pick up the ^3Zombie Head ^9] " );
+    headTrig TriggerIgnoreTeam();
+    //fx_hint_mark = spawn( "trigger_radius_use", trigloc, 0,55,55 );
+    //fx_hint_mark setHintString( "^9[ ^3[{+activate}] ^8to pick up the ^3Zombie Head ^9] " );
+    //fx_hint_mark setCursorHint( "HINT_NOICON" );
+    //fx_hint_mark TriggerIgnoreTeam();
     while ( true )
     {
         headTrig waittill( "trigger", player );
@@ -1426,13 +1428,13 @@ ee_step2()
             is_close = distance( player.origin, trigloc );
         
 
-            if ( player useButtonPressed() && is_close < 40 )
+            if ( player useButtonPressed() && is_close < 120 )
             {
                 headTrig delete();
                 playsoundatposition( "zmb_box_poof", floatingHead.origin );
                 wait .05;
                 playFXOnTag( level._effect[ boom ], floatingHead, "tag_origin" );
-                fx_hint_mark delete();
+                //fx_hint_mark delete();
                 wait 0.09;
                 floatingHead delete(); //debug tommorow
                 level notify( "stop_ee2_light" );
